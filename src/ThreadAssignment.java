@@ -6,28 +6,15 @@ public class ThreadAssignment {
 
     public static void show() {
 
-        List<Thread> threads = new ArrayList<>();
-        List<DownloadFileTask> tasks = new ArrayList<>();
+        var status = new DownloadStatus();
 
-        for (var i = 0; i < 10; i++) {
-            var task = new DownloadFileTask();
-            tasks.add(task);
+        var thread1 = new Thread(new DownloadFileTask(status));
+        var thread2 = new Thread(() -> {
+            while (!status.isDone()) {}
+            System.out.println(status.getTotalBytes());
+        });
 
-            var thread = new Thread(task);
-            thread.start();
-            threads.add(thread);
-        }
-
-        for (var thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        var totalBytes = tasks.stream().map(t -> t.getStatus().getTotalBytes()).reduce(Integer::sum);
-
-        System.out.println(totalBytes);
+        thread1.start();
+        thread2.start();
     }
 }
