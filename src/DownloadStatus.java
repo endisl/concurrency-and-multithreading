@@ -1,21 +1,17 @@
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class DownloadStatus {
     private volatile boolean isDone;
-    private int totalBytes;
+    private AtomicInteger totalBytes = new AtomicInteger();
     private int totalFiles;
-    private Object totalBytesLock = new Object();
 
     public void incrementTotalBytes() {
-        synchronized (totalBytesLock) {
-            totalBytes++;
-        }
-    }
-
-    public synchronized void incrementTotalFiles() {
-        totalFiles++;
+        //compare and swap technique supported by most CPUs
+        totalBytes.incrementAndGet();
     }
 
     public int getTotalBytes() {
-        return totalBytes;
+        return totalBytes.get();
     }
 
     public boolean isDone() {

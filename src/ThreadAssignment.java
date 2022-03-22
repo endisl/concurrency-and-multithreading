@@ -8,21 +8,22 @@ public class ThreadAssignment {
 
         var status = new DownloadStatus();
 
-        var thread1 = new Thread(new DownloadFileTask(status));
-        var thread2 = new Thread(() -> {
-            while (!status.isDone()) {
-                synchronized (status) {
-                    try {
-                        status.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            System.out.println(status.getTotalBytes());
-        });
+        List<Thread> threads = new ArrayList<>();
 
-        thread1.start();
-        thread2.start();
+        for (var i = 0; i < 10; i++) {
+            var thread = new Thread(new DownloadFileTask(status));
+            thread.start();
+            threads.add(thread);
+        }
+
+        for (var thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println(status.getTotalBytes());
     }
 }
